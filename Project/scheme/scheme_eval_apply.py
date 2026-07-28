@@ -34,6 +34,18 @@ def scheme_eval(expr, env, _=None): # Optional third argument is ignored
     else:
         # BEGIN PROBLEM 3
         "*** YOUR CODE HERE ***"
+        procedure = scheme_eval(first, env)   # 求值操作符，得到 Procedure
+
+        # 遍历 rest，对每个操作数调用 scheme_eval
+        # args = nil
+        # while rest is not nil:
+        #     args = Pair(scheme_eval(rest.first, env), args)
+        #     rest = rest.rest
+        # # args 是反的，要翻转
+        # args = reverse(args)  # 但是要写 Pair 的 reverse 函数，遂作罢
+
+        args = rest.map(lambda x: scheme_eval(x, env))  # map 是 Pair 的方法，自动保持顺序
+        return scheme_apply(procedure, args, env)
         # END PROBLEM 3
 
 def scheme_apply(procedure, args, env):
@@ -45,20 +57,33 @@ def scheme_apply(procedure, args, env):
     if isinstance(procedure, BuiltinProcedure):
         # BEGIN PROBLEM 2
         "*** YOUR CODE HERE ***"
+        python_args = []
+        while args is not nil:
+            python_args.append(args.first)
+            args = args.rest
+        if procedure.need_env:
+            python_args.append(env)
         # END PROBLEM 2
         try:
             # BEGIN PROBLEM 2
             "*** YOUR CODE HERE ***"
+            return procedure.py_func(*python_args)
             # END PROBLEM 2
         except TypeError as err:
             raise SchemeError('incorrect number of arguments: {0}'.format(procedure))
     elif isinstance(procedure, LambdaProcedure):
         # BEGIN PROBLEM 9
         "*** YOUR CODE HERE ***"
+        # 以定义lambda时的环境为父环境创建一个新的子环境，并将形参绑定到实参
+        new_env = procedure.env.make_child_frame(procedure.formals, args)
+        # 在新的子环境中依次求值 lambda 的 body 中的每个表达式，并返回最后一个表达式的值
+        return eval_all(procedure.body, new_env)
         # END PROBLEM 9
     elif isinstance(procedure, MuProcedure):
         # BEGIN PROBLEM 11
         "*** YOUR CODE HERE ***"
+        new_env = env.make_child_frame(procedure.formals,args)  #父环境为调用时环境
+        return eval_all(procedure.body,new_env)
         # END PROBLEM 11
     else:
         assert False, "Unexpected procedure: {}".format(procedure)
@@ -79,7 +104,13 @@ def eval_all(expressions, env):
     2
     """
     # BEGIN PROBLEM 6
-    return scheme_eval(expressions.first, env) # replace this with lines of your own code
+    if expressions is nil:
+        return None
+    curr = expressions
+    while curr is not nil:
+        result = scheme_eval(curr.first,env)
+        curr = curr.rest
+    return result
     # END PROBLEM 6
 
 

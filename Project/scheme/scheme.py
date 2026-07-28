@@ -2,6 +2,7 @@
 
 import sys
 import os
+import time
 
 sys.path.append("scheme_reader")
 
@@ -32,6 +33,7 @@ def read_eval_print_loop(next_line, env, interactive=False, quiet=False,
                 result = scheme_eval(expression, env)
                 if not quiet and result is not None:
                     print(repl_str(result))
+                    time.sleep(0.3)  # 录视频用的延迟，录完删掉这行
         except (SchemeError, SyntaxError, ValueError, RuntimeError) as err:
             if report_errors:
                 if isinstance(err, SyntaxError):

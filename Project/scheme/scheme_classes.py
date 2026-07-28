@@ -27,12 +27,17 @@ class Frame:
         """Define Scheme SYMBOL to have VALUE."""
         # BEGIN PROBLEM 1
         "*** YOUR CODE HERE ***"
+        self.bindings[symbol] = value
         # END PROBLEM 1
 
     def lookup(self, symbol):
         """Return the value bound to SYMBOL. Errors if SYMBOL is not found."""
         # BEGIN PROBLEM 1
         "*** YOUR CODE HERE ***"
+        if symbol in self.bindings:
+            return self.bindings[symbol]
+        elif self.parent is not None:
+            return self.parent.lookup(symbol)
         # END PROBLEM 1
         raise SchemeError('unknown identifier: {0}'.format(symbol))
 
@@ -52,6 +57,16 @@ class Frame:
             raise SchemeError('Incorrect number of arguments to function call')
         # BEGIN PROBLEM 8
         "*** YOUR CODE HERE ***"
+        # Create a new frame with self as the parent
+        child_frame = Frame(self)
+        # 将形参和实参绑定到新创建的子环境中
+        curr_formals = formals
+        curr_vals = vals
+        while curr_formals is not nil and curr_vals is not nil:
+            child_frame.define(curr_formals.first, curr_vals.first)
+            curr_formals = curr_formals.rest
+            curr_vals = curr_vals.rest
+        return child_frame
         # END PROBLEM 8
 
 ##############
